@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - Smart Inventory</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <aside class="sidebar">
+        <div class="logo">📦 Smart Inventory</div>
+        <nav>
+            <a href="/">🏠 Dashboard</a>
+            <a href="/products">📦 Products</a>
+            <a href="/reports" class="active">📊 Reports</a>
+            <a href="/settings">⚙️ Settings</a>
+            <a href="/export-csv" class="edit-btn">📥 Export</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+
+        <div class="dashboard-header">
+            <div>
+                <h2>{{t.reports}}</h2>
+                <p>Overview of overall inventory metrics and performance.</p>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <h3>Total Products</h3>
+                <p>{{ total_products }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Total Stock</h3>
+                <p>{{ total_stock }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Low Stock</h3>
+                <p>{{ low_stock }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Out of Stock</h3>
+                <p>{{ out_of_stock }}</p>
+            </div>
+        </div>
+
+        <section class="inventory-section" style="margin-bottom: 30px;">
+            <h2 style="margin-bottom: 10px;">💰 Inventory Value</h2>
+            <div style="font-size: 38px; font-weight: 800; color: #38bdf8; margin: 10px 0;">
+                Tsh {{ "%.2f"|format(inventory_value) }}
+            </div>
+            <p style="color: #94a3b8;">Estimated cumulative Tanzania Shilings value across all stock entries.</p>
+        </section>
+
+        <!-- Category Breakdown Section -->
+        <section class="inventory-section" style="margin-bottom: 30px;">
+            <div class="inventory-header">
+                <div>
+                    <h2>📦 Category Breakdown</h2>
+                    <p style="color: #94a3b8; margin-top: 5px;">Inventory stats grouped by product category.</p>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Products</th>
+                            <th>Total Stock</th>
+                            <th>Inventory Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for category in categories %}
+                        <tr>
+                            <td><strong>{{ category["category"] }}</strong></td>
+                            <td>{{ category["product_count"] }}</td>
+                            <td>{{ category["stock"] }}</td>
+                            <td>Tsh {{ "%.2f"|format(category["value"]) }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: #94a3b8; padding: 30px;">
+                                No category data available.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Real-Time Activity Log Section -->
+        <section class="inventory-section">
+            <div class="inventory-header">
+                <div>
+                    <h2>📋 Real-Time System Activity Log</h2>
+                    <p style="color: #94a3b8; margin-top: 5px;">Tracked inventory modifications and system events.</p>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Action</th>
+                            <th>Product</th>
+                            <th>Details</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in recent_activity %}
+                        <tr>
+                            <td>
+                                {% if log["action"] == "CREATED" %}
+                                    <span class="in-stock">CREATED</span>
+                                {% elif log["action"] == "DELETED" %}
+                                    <span class="out-of-stock">DELETED</span>
+                                {% else %}
+                                    <span class="low-stock">UPDATED</span>
+                                {% endif %}
+                            </td>
+                            <td><strong>{{ log["product_name"] }}</strong></td>
+                            <td>{{ log["details"] }}</td>
+                            <td style="color: #94a3b8; font-size: 13px;">{{ log["timestamp"] }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: #94a3b8; padding: 30px;">
+                                No activity recorded yet.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+<button class="mobile-menu-btn" id="menuToggle">☰</button>
+
+<script>
+    const menuBtn = document.getElementById('menuToggle');
+    const sidebar = document.querySelector('.sidebar');
+
+    menuBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        menuBtn.textContent = sidebar.classList.contains('open') ? '✕' : '☰';
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+            sidebar.classList.remove('open');
+            menuBtn.textContent = '☰';
+        }
+    });
+</script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+
+</html>

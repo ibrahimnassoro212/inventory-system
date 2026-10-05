@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product - Smart Inventory</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <aside class="sidebar">
+        <div class="logo">📦 Smart Inventory</div>
+        <nav>
+            <a href="/">🏠 Dashboard</a>
+            <a href="/products">📦 Products</a>
+            <a href="/reports">📊 Reports</a>
+            <a href="/settings">⚙️ Settings</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+
+        <div class="dashboard-header">
+            <div>
+                <h1>Add Product</h1>
+                <p>Add a new item to your stock records.</p>
+            </div>
+        </div>
+
+        <section class="inventory-section form-card">
+
+            <form method="POST">
+
+                <div class="form-group">
+                    <label for="name">Product Name</label>
+                    <input type="text" id="name" name="name" placeholder="e.g. Wireless Mouse" required><br>
+                </div>
+<br>
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <input type="text" id="category" name="category" placeholder="e.g. Electronics" required>
+                </div>
+<br>
+                <div class="form-group">
+                    <label for="quantity">Quantity</label>
+                    <input type="number" id="quantity" name="quantity" min="0" placeholder="0" required>
+                </div>
+<br>
+                <div class="form-group">
+                    <label for="price">Price Tshs</label>
+                    <input type="number" id="price" name="price" min="0" step="0.01" placeholder="0.00" required>
+                </div>
+                <br>
+
+                <div style="display: flex; gap: 15px; align-items: center; margin-top: 25px;">
+                    <button type="submit">Add Product</button>
+                    <a href="/" style="color: #94a3b8; text-decoration: none; font-size: 14px;">Cancel</a>
+                </div>
+
+            </form>
+
+        </section>
+
+    </main>
+
+<button class="mobile-menu-btn" id="menuToggle">☰</button>
+
+<script>
+    const menuBtn = document.getElementById('menuToggle');
+    const sidebar = document.querySelector('.sidebar');
+
+    menuBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        menuBtn.textContent = sidebar.classList.contains('open') ? '✕' : '☰';
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+            sidebar.classList.remove('open');
+            menuBtn.textContent = '☰';
+        }
+    });
+</script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+
+</html>

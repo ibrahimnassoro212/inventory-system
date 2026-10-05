@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Smart Inventory</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: radial-gradient(circle at top, rgba(59,130,246,0.25), transparent 40%), #0f172a;
+        }
+        .auth-card {
+            width: min(440px, 90vw);
+            background: rgba(15, 23, 42, 0.75);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 25px 60px rgba(15, 23, 42, 0.6);
+        }
+        .auth-card h1 { margin-bottom: 10px; }
+        .auth-card p { color: #94a3b8; margin-bottom: 20px; }
+        .auth-form { display: grid; gap: 14px; }
+        .auth-form input { width: 100%; }
+        .auth-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+        .link-text { color: #7dd3fc; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="auth-card">
+        <div class="logo" style="margin-bottom: 10px;">📦 Smart Inventory</div>
+        <h1>Welcome back</h1>
+        <p>Sign in to manage your stock, reports, and operations.</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" class="auth-form">
+            <input type="text" name="username" placeholder="Username or email" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+
+        <div class="auth-actions">
+            <span>Need an account?</span>
+            <a class="link-text" href="{{ url_for('register') }}">Create one</a>
+        </div>
+        <div class="auth-actions" style="margin-top: 8px;">
+            <span>Default Admin</span>
+            <span class="role-badge">admin / admin123</span>
+        </div>
+    </div>
+</body>
+</html>

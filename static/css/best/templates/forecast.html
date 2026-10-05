@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Forecast - Smart Inventory</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="logo">📦 Smart Inventory</div>
+        <nav>
+            <a href="/">🏠 Dashboard</a>
+            <a href="/products">📦 Products</a>
+            <a href="/forecast" class="active">📈 AI Forecast</a>
+            <a href="/reports">📊 Reports</a>
+            <a href="/settings">⚙️ Settings</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div class="dashboard-header">
+            <div>
+                <h1>AI Demand Forecasting</h1>
+                <p>Predictive analytics, burn rates, and runtimes based on stock velocity.</p>
+            </div>
+        </div>
+
+        <div class="inventory-section" style="margin-bottom: 30px;">
+            <h2>7 / 14 / 30-Day Stock Depletion Projections</h2>
+            <canvas id="forecastChart" style="max-height: 300px; margin-top: 20px;"></canvas>
+        </div>
+
+        <section class="inventory-section">
+            <h2>Stockout Runway & Reorder Recommendations (EOQ)</h2>
+            <div class="table-wrapper" style="margin-top: 20px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Current Qty</th>
+                            <th>Daily Burn Rate</th>
+                            <th>Runway (Days)</th>
+                            <th>Recommended EOQ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in forecast %}
+                        <tr>
+                            <td><strong>{{ item["name"] }}</strong></td>
+                            <td>{{ item["quantity"] }}</td>
+                            <td>{{ item["burn_rate"] }} units/day</td>
+                            <td>
+                                <span class="{% if item['runway_days'] <= 5 %}out-of-stock{% elif item['runway_days'] <= 15 %}low-stock{% else %}in-stock{% endif %}">
+                                    {{ item["runway_days"] }} days
+                                </span>
+                            </td>
+                            <td><strong>+{{ item["eoq"] }} units</strong></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const ctx = document.getElementById('forecastChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Today', 'Day 7', 'Day 14', 'Day 21', 'Day 30'],
+                datasets: [{
+                    label: 'Projected Inventory Depletion Index',
+                    data: [100, 82, 60, 35, 12],
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { labels: { color: '#94a3b8' } } } }
+        });
+    </script>
+</body>
+</html>

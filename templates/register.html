@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Smart Inventory</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: radial-gradient(circle at top, rgba(59,130,246,0.25), transparent 40%), #0f172a;
+        }
+        .auth-card {
+            width: min(480px, 90vw);
+            background: rgba(15, 23, 42, 0.75);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 25px 60px rgba(15, 23, 42, 0.6);
+        }
+        .auth-card h1 { margin-bottom: 10px; }
+        .auth-card p { color: #94a3b8; margin-bottom: 20px; }
+        .auth-form { display: grid; gap: 14px; }
+        .auth-form input, .auth-form select { width: 100%; }
+        .auth-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+        .link-text { color: #7dd3fc; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="auth-card">
+        <div class="logo" style="margin-bottom: 10px;">📦 Smart Inventory</div>
+        <h1>Create account</h1>
+        <p>Set up a new user role for your team.</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" class="auth-form">
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <select name="role">
+                <option value="staff">Staff</option>
+                <option value="manager">Manager</option>
+                <option value="admin">Admin</option>
+            </select>
+            <button type="submit">Register</button>
+        </form>
+
+        <div class="auth-actions">
+            <span>Already registered?</span>
+            <a class="link-text" href="{{ url_for('login') }}">Login</a>
+        </div>
+    </div>
+</body>
+</html>

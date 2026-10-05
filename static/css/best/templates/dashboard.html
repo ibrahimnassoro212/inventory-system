@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Inventory System</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            📦 Smart Inventory
+        </div>
+
+        <nav>
+            <a href="/" class="active">🏠 Dashboard</a>
+            <a href="/products">📦 Products</a>
+            <a href="/forecast">📈 AI Forecast</a>
+            <a href="/reports">📊 Reports</a>
+            <a href="/settings">⚙️ Settings</a>
+        </nav>
+
+    </aside>
+
+
+    <main class="main-content">
+
+        <div class="dashboard-header">
+
+            <div>
+                <h1>{{ t.dashboard }}</h1>
+
+                <p>
+                    Manage your products, stock and inventory value.
+                </p>
+            </div>
+
+            <!-- Header Right Actions: Notification Center & Add Product -->
+            <div style="display: flex; align-items: center; gap: 15px;">
+                
+               <!-- Notification Bell & Dropdown Container -->
+<div style="position: relative; display: inline-block;">
+    <button id="bellBtn" onclick="toggleDropdown(event)" style="background: rgba(30, 41, 59, 0.7); position: relative; padding: 10px 14px; border-radius: 10px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); color: #ffffff;">
+        🔔 <span id="notifBadge" style="background: #dc2626; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; position: absolute; top: -5px; right: -5px; display: none;">0</span>
+    </button>
+    
+    <!-- The Dropdown Card -->
+    <div id="notifDropdown" style="display: none; position: absolute; right: 0; top: 50px; width: 300px; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 9999; padding: 15px;">
+        <h4 style="margin-bottom: 10px; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; color: #ffffff;">Notifications</h4>
+        <div id="notifList" style="max-height: 200px; overflow-y: auto; font-size: 13px; color: #94a3b8;">
+            Loading alerts...
+        </div>
+    </div>
+</div>
+
+<script>
+    // Direct toggle function so it works immediately upon clicking the bell
+    function toggleDropdown(event) {
+        event.stopPropagation();
+        const dropdown = document.getElementById('notifDropdown');
+        if (dropdown.style.display === 'block') {
+            dropdown.style.display = 'none';
+        } else {
+            dropdown.style.display = 'block';
+        }
+    }
+
+    // Close dropdown when clicking anywhere else on the screen
+    window.addEventListener('click', () => {
+        const dropdown = document.getElementById('notifDropdown');
+        if (dropdown) {
+            dropdown.style.display = 'none';
+        }
+    });
+</script>
+
+                <a href="/add-product">
+                    <button>Add Product</button>
+                </a>
+            </div>
+
+        </div>
+
+        {% if low_stock > 0 %}
+        <div class="alert-banner">
+            ⚠️ <strong>Low Stock Alert:</strong> You have {{ low_stock }} item(s) running low on inventory[cite: 4].
+        </div>
+        {% endif %}
+
+        <!-- Statistics -->
+
+        <div class="stats">
+
+            <div class="stat-card">
+                <h3>Total Products</h3>
+                <p>{{ total_products }}</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>Total Stock</h3>
+                <p>{{ total_stock }}</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>Low Stock</h3>
+                <p>{{ low_stock }}</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>Inventory Value</h3>
+                <p>Tsh {{ "%.2f"|format(inventory_value) }}</p>
+            </div>
+
+        </div>
+
+
+        <!-- Inventory -->
+
+        <section class="inventory-section">
+
+            <div class="inventory-header">
+
+                <h2>Inventory</h2>
+
+                <form method="GET"
+                      action="/"
+                      class="search-form">
+
+                    <input
+                        type="text"
+                        name="search"
+                        placeholder="Search products..."
+                        value="{{ search }}"
+                    >
+
+                    <button type="submit">
+                        Search
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>ID</th>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for product in products %}
+                        <tr>
+
+                            <td>{{ product["id"] }}</td>
+
+                            <td>{{ product["name"] }}</td>
+
+                            <td>{{ product["category"] }}</td>
+
+                            <td>{{ product["quantity"] }}</td>
+
+                            <td>
+                                Tsh {{ "%.2f"|format(product["price"]) }}
+                            </td>
+
+                            <td>
+
+                                {% if product["quantity"] == 0 %}
+
+                                    <span class="out-of-stock">
+                                        Out of Stock
+                                    </span>
+
+                                {% elif product["quantity"] <= 5 %}
+
+                                    <span class="low-stock">
+                                        Low Stock
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="in-stock">
+                                        In Stock
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+                                <!-- Quick Stock Adjuster -->
+                                <div style="display: flex; gap: 5px; margin-bottom: 5px; align-items: center;">
+                                    <form method="POST" action="{{ url_for('adjust_stock', id=product['id'], action='decrease') }}" style="display:inline;">
+                                        <button type="submit" style="padding: 2px 6px; font-size: 11px; background: #475569;">-</button>
+                                    </form>
+                                    <span style="padding: 2px 4px; font-size: 12px; color: #38bdf8;">{{ product["quantity"] }}</span>
+                                    <form method="POST" action="{{ url_for('adjust_stock', id=product['id'], action='increase') }}" style="display:inline;">
+                                        <button type="submit" style="padding: 2px 6px; font-size: 11px; background: #2563eb;">+</button>
+                                    </form>
+                                </div>
+
+                                <a
+                                    href="{{ url_for('edit_product', id=product['id']) }}"
+                                    class="edit-btn" style="padding: 4px 10px; font-size: 12px;">
+                                    Edit
+                                </a>
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for('delete_product', id=product['id']) }}"
+                                    class="delete-form">
+
+                                    <button
+                                        type="submit"
+                                        class="delete-btn"
+                                        style="padding: 4px 10px; font-size: 12px;"
+                                        onclick="return confirm('Delete this product?');">
+                                        Delete
+                                    </button>
+
+                                </form>
+
+                            </td>
+
+                        </tr>
+
+                        {% else %}
+
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: #94a3b8; padding: 30px;">
+                                No products found.
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <button class="mobile-menu-btn" id="menuToggle">☰</button>
+
+<script>
+    // 1. Mobile Menu Toggle
+    const menuBtn = document.getElementById('menuToggle');
+    const sidebar = document.querySelector('.sidebar');
+
+    if (menuBtn && sidebar) {
+        menuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            menuBtn.textContent = sidebar.classList.contains('open') ? '✕' : '☰';
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+                sidebar.classList.remove('open');
+                menuBtn.textContent = '☰';
+            }
+        });
+    }
+
+    // 2. Notification Dropdown Toggle
+    function toggleDropdown(event) {
+        event.stopPropagation();
+        const dropdown = document.getElementById('notifDropdown');
+        if (dropdown) {
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        }
+    }
+
+    // Close notification dropdown when clicking anywhere else
+    window.addEventListener('click', () => {
+        const dropdown = document.getElementById('notifDropdown');
+        if (dropdown) {
+            dropdown.style.display = 'none';
+        }
+    });
+
+    // 3. Fetch and Populate Notifications on Page Load
+    document.addEventListener("DOMContentLoaded", () => {
+        fetch("/api/notifications/fetch")
+            .then(res => res.json())
+            .then(data => {
+                const notifBadge = document.getElementById("notifBadge");
+                const notifList = document.getElementById("notifList");
+
+                if (notifBadge && data.count > 0) {
+                    notifBadge.style.display = "inline-block";
+                    notifBadge.innerText = data.count;
+                }
+
+                if (notifList) {
+                    if (data.notifications && data.notifications.length > 0) {
+                        notifList.innerHTML = data.notifications.map(n => `
+                            <div style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: ${n.is_read ? '#94a3b8' : '#f8fafc'}">${n.message}</span>
+                                ${!n.is_read ? `<button onclick="markRead(${n.id})" style="padding: 2px 6px; font-size: 10px; background: #2563eb; border: none; color: white; border-radius: 4px; cursor: pointer;">✓</button>` : ''}
+                            </div>
+                        `).join('');
+                    } else {
+                        notifList.innerHTML = "<p style='color: #94a3b8; text-align: center; margin: 0;'>No low-stock alerts.</p>";
+                    }
+                }
+            })
+            .catch(err => {
+                console.error("Failed to load notifications:", err);
+                const notifList = document.getElementById("notifList");
+                if (notifList) {
+                    notifList.innerHTML = "<p style='color: #ef4444; text-align: center; margin: 0;'>Failed to load alerts.</p>";
+                }
+            });
+    });
+
+    // 4. Global markRead Handler
+    window.markRead = function(id) {
+        fetch(`/api/notifications/read/${id}`, { method: "POST" })
+            .then(() => location.reload())
+            .catch(err => console.error("Error updating notification:", err));
+    };
+</script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+
+</html>

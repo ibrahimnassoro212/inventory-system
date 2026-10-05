@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products - Smart Inventory</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <aside class="sidebar">
+        <div class="logo">📦 Smart Inventory</div>
+        <nav>
+            <a href="/">🏠 Dashboard</a>
+            <a href="/products" class="active">📦 Products</a>
+            <a href="/reports">📊 Reports</a>
+            <a href="/settings">⚙️ Settings</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+
+        <div class="dashboard-header">
+            <div>
+                <h1>{{ t.products}}</h1>
+                <p>Manage all items in your stock inventory.</p>
+            </div>
+
+            <a href="/add-product">
+                <button>+ Add Product</button>
+            </a>
+        </div>
+
+        <section class="inventory-section">
+
+            <div class="inventory-header">
+                <h2>Product Inventory</h2>
+
+                <form method="GET" action="/products" class="search-form">
+                    <input type="text" name="search" placeholder="Search products..." value="{{ search }}">
+                    <button type="submit">Search</button>
+                </form>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                        <tr>
+                            <td>{{ product["id"] }}</td>
+                            <td><strong>{{ product["name"] }}</strong></td>
+                            <td>{{ product["category"] }}</td>
+                            <td>{{ product["quantity"] }}</td>
+                            <td>Tsh {{ "%.2f"|format(product["price"]) }}</td>
+                            <td>
+                                {% if product["quantity"] == 0 %}
+                                    <span class="out-of-stock">Out of Stock</span>
+                                {% elif product["quantity"] <= 5 %}
+                                    <span class="low-stock">Low Stock</span>
+                                {% else %}
+                                    <span class="in-stock">In Stock</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('edit_product', id=product['id']) }}" class="edit-btn">Edit</a>
+                                <form method="POST" action="{{ url_for('delete_product', id=product['id']) }}" class="delete-form">
+                                    <button type="submit" class="delete-btn" onclick="return confirm('Delete this product?');">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: #94a3b8; padding: 30px;">
+                                No products found.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </section>
+
+    </main>
+    <button class="mobile-menu-btn" id="menuToggle">☰</button>
+
+<script>
+    const menuBtn = document.getElementById('menuToggle');
+    const sidebar = document.querySelector('.sidebar');
+
+    menuBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        menuBtn.textContent = sidebar.classList.contains('open') ? '✕' : '☰';
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+            sidebar.classList.remove('open');
+            menuBtn.textContent = '☰';
+        }
+    });
+</script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+
+</html>

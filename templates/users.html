@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Roles - Smart Inventory</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="logo">📦 Smart Inventory</div>
+        <nav>
+            <a href="/">🏠 Dashboard</a>
+            <a href="/products">📦 Products</a>
+            <a href="/reports">📊 Reports</a>
+            <a href="/forecast">📈 Forecast</a>
+            <a href="/settings">⚙️ Settings</a>
+            <a href="/users" class="active">👥 Users</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div class="dashboard-header">
+            <div>
+                <h1>User Roles</h1>
+                <p>Manage access control for staff, managers, and administrators.</p>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <span class="role-badge">{{ current_user.role|upper }}</span>
+                <a href="{{ url_for('logout') }}"><button>Logout</button></a>
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <section class="inventory-section">
+            <div class="inventory-header">
+                <h2>Team Members</h2>
+                <a href="{{ url_for('register') }}"><button>Create User</button></a>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>
+                                <span class="role-badge {{ user.role }}">{{ user.role }}</span>
+                            </td>
+                            <td>
+                                <form method="POST" action="{{ url_for('update_user_role', user_id=user.id, role='admin') }}" style="display:inline;">
+                                    <button type="submit" class="edit-btn" {% if user.role == 'admin' %}disabled{% endif %}>Admin</button>
+                                </form>
+                                <form method="POST" action="{{ url_for('update_user_role', user_id=user.id, role='manager') }}" style="display:inline;">
+                                    <button type="submit" class="edit-btn" {% if user.role == 'manager' %}disabled{% endif %}>Manager</button>
+                                </form>
+                                <form method="POST" action="{{ url_for('update_user_role', user_id=user.id, role='staff') }}" style="display:inline;">
+                                    <button type="submit" class="edit-btn" {% if user.role == 'staff' %}disabled{% endif %}>Staff</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

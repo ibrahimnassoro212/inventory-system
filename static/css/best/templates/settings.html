@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ t.settings }} - Smart Inventory</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .setting-item span {
+            color: #94a3b8;
+        }
+        @media (max-width: 800px) {
+            .settings-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <aside class="sidebar">
+        <div class="logo">📦 Smart Inventory</div>
+        <nav>
+            <a href="/">🏠 {{ t.dashboard }}</a>
+            <a href="/products">📦 {{ t.products }}</a>
+            <a href="/reports">📊 {{ t.reports }}</a>
+            <a href="/settings" class="active">⚙️ {{ t.settings }}</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+
+        <div class="dashboard-header">
+            <div>
+                <h1>{{ t.settings }}</h1>
+                <p>System details and configuration options.</p>
+            </div>
+        </div>
+
+        <section class="settings-grid">
+
+            <!-- General Configuration -->
+            <div class="inventory-section">
+                <div style="font-size: 28px; margin-bottom: 10px;">⚙️</div>
+                <h2>General Configuration</h2>
+                <p style="color: #94a3b8; margin-bottom: 20px;">System metadata and build info.</p>
+
+                <div class="setting-item">
+                    <strong>Application Name</strong>
+                    <span>Smart Inventory</span>
+                </div>
+                <div class="setting-item">
+                    <strong>Version</strong>
+                    <span>1.0.0</span>
+                </div>
+            </div>
+
+            <!-- Inventory Rules -->
+            <div class="inventory-section">
+                <div style="font-size: 28px; margin-bottom: 10px;">📦</div>
+                <h2>Inventory Rules</h2>
+                <p style="color: #94a3b8; margin-bottom: 20px;">Stock alert thresholds and monitoring.</p>
+
+                <div class="setting-item">
+                    <strong>Low Stock Limit</strong>
+                    <span>5 units</span>
+                </div>
+                <div class="setting-item">
+                    <strong>Status Tracker</strong>
+                    <span style="color: #4ade80; font-weight: bold;">● Active</span>
+                </div>
+            </div>
+
+            <!-- Display Preferences -->
+            <div class="inventory-section">
+                <div style="font-size: 28px; margin-bottom: 10px;">🎨</div>
+                <h2>Display Preferences</h2>
+                <p style="color: #94a3b8; margin-bottom: 20px;">Localization and layout values.</p>
+
+                <!-- Language Switcher -->
+                <div class="setting-item">
+                    <div>
+                        <strong>Language</strong>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <a href="/change-language/en" class="edit-btn" style="padding: 6px 12px; text-decoration: none; {{ 'background: #059669;' if lang == 'en' else '' }}">EN</a>
+                        <a href="/change-language/sw" class="edit-btn" style="padding: 6px 12px; text-decoration: none; {{ 'background: #059669;' if lang == 'sw' else '' }}">SW</a>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <strong>Currency Symbol</strong>
+                    <span>Tanzanian shillings (Tshs)</span>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <strong>Theme Mode</strong>
+                        <br><span id="themeLabel" style="font-size: 13px;">3D Glassmorphic (Dark)</span>
+                    </div>
+                    <button id="themeToggle" class="edit-btn">Toggle Theme</button>
+                </div>
+            </div>
+
+            <!-- Environment Stack -->
+            <div class="inventory-section">
+                <div style="font-size: 28px; margin-bottom: 10px;">💻</div>
+                <h2>Environment Stack</h2>
+                <p style="color: #94a3b8; margin-bottom: 20px;">Backend database and engine.</p>
+
+                <div class="setting-item">
+                    <strong>Database</strong>
+                    <span>SQLite3</span>
+                </div>
+                <div class="setting-item">
+                    <strong>Server Runtime</strong>
+                    <span>Python / Flask</span>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <button class="mobile-menu-btn" id="menuToggle">☰</button>
+
+    <script>
+        // Kazi ya kubadilisha lugha kwa kutumia JavaScript kama unataka isi-reload ukurasa (Optional)
+        // Lakini kwa sasa, link za href="/change-language/..." zinatosha kufanya kazi kwenye page nzima
+        
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        if (savedTheme === 'light') {
+            document.body.classList.add('light-mode');
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const themeBtn = document.getElementById('themeToggle');
+            const themeLabel = document.getElementById('themeLabel');
+
+            if (themeLabel) {
+                themeLabel.textContent = document.body.classList.contains('light-mode') ? 'Light Mode' : '3D Glassmorphic (Dark)';
+            }
+
+            if (themeBtn) {
+                themeBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const isLight = document.body.classList.toggle('light-mode');
+                    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+                    
+                    if (themeLabel) {
+                        themeLabel.textContent = isLight ? 'Light Mode' : '3D Glassmorphic (Dark)';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
